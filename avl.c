@@ -5,8 +5,8 @@
 struct No
 {
     int altura;
-    AVLtree* esquerda;
-    AVLtree* direita;
+    struct No* esquerda;
+    struct No* direita;
     int dado;
 };
 
@@ -73,16 +73,37 @@ int inserir(AVLtree* raiz, int info){
             *raiz = novoNo;
             return 1;
         }
+
+        return 0;
         
     }
 
     struct No* atual = *raiz;
-    if(info<atual->dado){
-        if(res= inserir(&(atual->esquerda), info) == 1){
-            if(fatorBalanceamento(atual)>=2){
-                
+     if (info < atual->dado) {
+        if ((res = inserir(&(atual->esquerda), info)) == 1) {
+            if (fatorBalanceamento(atual) >= 2) {
+                if (info < atual->esquerda->dado) {  // safe: insert succeeded, esquerda != NULL
+                    rotacaoLL(raiz);
+                } else {
+                    rotacaoLR(raiz);
+                }
             }
         }
+    } else if (info > atual->dado) {           // ← missing branch was the core bug
+        if ((res = inserir(&(atual->direita), info)) == 1) {
+            if (fatorBalanceamento(atual) >= 2) {
+                if (info > atual->direita->dado) {
+                    rotacaoRR(raiz);
+                } else {
+                    rotacaoRL(raiz);
+                }
+            }
+        }
+    } else {
+        return 0; // duplicate
     }
-    
+
+    atual->altura = maior(alturaNo(atual->esquerda), alturaNo(atual->direita)) + 1;
+    return res;
 }
+    
