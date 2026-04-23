@@ -20,6 +20,7 @@ int maior(int x, int y){
 }
 
 int fatorBalanceamento(struct No* no){
+    if (no == NULL) return 0;
     return labs(alturaNo(no->direita) - alturaNo(no->esquerda));
 }
 
@@ -82,14 +83,14 @@ int inserir(AVLtree* raiz, int info){
      if (info < atual->dado) {
         if ((res = inserir(&(atual->esquerda), info)) == 1) {
             if (fatorBalanceamento(atual) >= 2) {
-                if (info < atual->esquerda->dado) {  // safe: insert succeeded, esquerda != NULL
+                if (info < atual->esquerda->dado) {
                     rotacaoLL(raiz);
                 } else {
                     rotacaoLR(raiz);
                 }
             }
         }
-    } else if (info > atual->dado) {           // ← missing branch was the core bug
+    } else if (info > atual->dado) {
         if ((res = inserir(&(atual->direita), info)) == 1) {
             if (fatorBalanceamento(atual) >= 2) {
                 if (info > atual->direita->dado) {
@@ -106,4 +107,10 @@ int inserir(AVLtree* raiz, int info){
     atual->altura = maior(alturaNo(atual->esquerda), alturaNo(atual->direita)) + 1;
     return res;
 }
-    
+
+void liberar_avl(AVLtree raiz){
+    if(raiz == NULL) return;
+    liberar_avl(raiz->esquerda);
+    liberar_avl(raiz->direita);
+    free(raiz);
+}
